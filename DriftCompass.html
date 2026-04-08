@@ -1,0 +1,1146 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EpistePhan · Epistemic Compass</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b14;--surf:#0d1220;--brd:#1a2540;
+  --acc:#00e5ff;--neg:#ff4d6d;--pos:#a8ff3e;--warn:#ffb800;
+  --usr:#c084fc;--mdl:#00e5ff;--eng:#ffb800;
+  --usr-dim:rgba(192,132,252,.12);--mdl-dim:rgba(0,229,255,.10);
+  --txt:#c8d8f0;--mut:#7a8aaa;
+}
+body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,0.006) 2px,rgba(0,229,255,0.006) 4px);pointer-events:none;z-index:0}
+#dc{max-width:1100px;margin:0 auto;padding:16px;position:relative;z-index:1}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.logo{font-family:'Space Mono',monospace;font-size:12px;color:var(--acc);letter-spacing:.12em}
+.logosub{font-family:'Space Mono',monospace;font-size:8px;color:var(--mut);letter-spacing:.06em;margin-top:2px}
+.topright{display:flex;align-items:center;gap:10px}
+.turn-badge{font-family:'Space Mono',monospace;font-size:9px;color:var(--mut)}
+.langbtn{font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border:1px solid var(--brd);border-radius:4px;background:transparent;color:var(--mut);cursor:pointer;transition:all .15s}
+.langbtn:hover{color:var(--acc);border-color:var(--acc)}
+
+.banner{background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.12);border-radius:6px;padding:8px 14px;margin-bottom:12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--mut);letter-spacing:.05em;text-align:center}
+.banner span{color:var(--txt)}
+
+.layout{display:flex;flex-direction:column;gap:10px}
+.left{display:flex;flex-direction:column;gap:10px}
+
+.sec-header{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;color:var(--mut);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sec-header::before{content:'';display:block;width:3px;height:10px;border-radius:2px;background:var(--acc);flex-shrink:0}
+
+.panel{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:12px}
+.plbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--mut);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.du{background:var(--usr)}.dm{background:var(--mdl)}.ds{background:var(--pos)}.de{background:var(--eng)}
+
+.sc-panel{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:12px}
+.sc-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sc-col-header{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.08em;color:var(--mut);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.sc-col-dot{width:5px;height:5px;border-radius:50%}
+.scu{background:var(--usr)}.scm{background:var(--mdl)}
+
+.scbtn-u,.scbtn-m{width:100%;text-align:left;border-radius:5px;padding:6px 8px;font-family:'Space Mono',monospace;font-size:8px;cursor:pointer;transition:all .12s;margin-bottom:4px;border:1px solid var(--brd);background:transparent;color:var(--mut);line-height:1.4;display:block}
+.scbtn-u:hover{border-color:var(--usr);color:var(--usr);background:var(--usr-dim)}
+.scbtn-m:hover{border-color:var(--mdl);color:var(--mdl);background:var(--mdl-dim)}
+.scbtn-u.on{border-color:var(--usr);color:var(--usr);background:var(--usr-dim)}
+.scbtn-m.on{border-color:var(--mdl);color:var(--mdl);background:var(--mdl-dim)}
+.scbtn-u .sc-sub,.scbtn-m .sc-sub{display:block;font-size:7px;opacity:.6;margin-top:1px}
+.sc-ctx{font-family:'Space Mono',monospace;font-size:8px;color:var(--mut);line-height:1.6;border-top:1px solid var(--brd);padding-top:8px;min-height:28px}
+.sc-ctx b{color:var(--txt)}
+
+.cfg-collapse-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;column-gap:14px;cursor:pointer;padding:8px 0;margin-bottom:0;user-select:none}
+.cfg-collapse-bar:hover .plbl{color:var(--acc)}
+.cfg-arrow{font-family:'Space Mono',monospace;font-size:9px;color:var(--mut);transition:transform .2s;justify-self:end}
+.cfg-arrow.open{transform:rotate(90deg)}
+.cfg-scenario-badge{font-family:'Space Mono',monospace;font-size:8px;color:var(--warn);background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.2);border-radius:3px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.cfg-active{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;justify-self:end;gap:4px;text-align:right;min-width:0}
+.cfg-active-lbl,.cfg-potential-lbl,.cfg-pot-meta{font-family:'Space Mono',monospace;font-size:7px;color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
+.cfg-summary{display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid var(--brd)}
+.cfg-pot-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cfg-pot-bars{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cfg-pot-card{border:1px solid var(--brd);border-radius:6px;padding:7px 8px;background:rgba(255,255,255,.01)}
+.cfg-pot-title{font-family:'Space Mono',monospace;font-size:8px;color:var(--txt);margin-bottom:5px}
+.cfg-pot-track{height:4px;background:var(--brd);border-radius:999px;overflow:hidden}
+.cfg-pot-fill{height:100%;border-radius:999px;transition:width .25s ease}
+.cfg-pot-fill.agency{background:linear-gradient(90deg,var(--neg),var(--warn),var(--pos))}
+.cfg-pot-fill.engagement{background:linear-gradient(90deg,#4a5a7a,var(--warn),var(--acc))}
+.cfg-pot-meta{display:flex;justify-content:space-between;gap:6px;margin-top:5px}
+.cfg-inner{overflow:hidden;transition:max-height .3s ease;max-height:600px}
+.cfg-inner.collapsed{max-height:0}
+
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.srow{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.sname{font-family:'Space Mono',monospace;font-size:9px;color:var(--txt);min-width:70px;line-height:1.3}
+.sname small{display:block;font-size:8px;color:var(--mut)}
+input[type=range]{flex:1;-webkit-appearance:none;height:2px;border-radius:2px;background:var(--brd);outline:none;cursor:pointer}
+input[type=range].ur::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--usr);border:2px solid var(--bg);cursor:pointer}
+input[type=range].mr::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--mdl);border:2px solid var(--bg);cursor:pointer}
+.sv{font-family:'Space Mono',monospace;font-size:9px;min-width:14px;text-align:right}
+.svu{color:var(--usr)}.svm{color:var(--mdl)}
+
+
+/* Opción B — simulación + brújula en la misma fila */
+.sim-row{display:grid;grid-template-columns:1fr 230px;gap:10px;align-items:start}
+@media(max-width:720px){.sim-row{grid-template-columns:1fr}}
+.sim-left{display:flex;flex-direction:column;gap:10px}
+.sim-right{display:flex;flex-direction:column;gap:8px}
+.flow-panel{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:12px}
+.flow-step{margin-bottom:10px}
+.step-header{font-family:'Space Mono',monospace;font-size:8px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.step-num{width:16px;height:16px;border-radius:50%;border:1px solid var(--mut);display:flex;align-items:center;justify-content:center;font-size:7px;flex-shrink:0;font-family:'Space Mono',monospace;transition:all .2s}
+.step-num.active{border-color:var(--acc);color:var(--acc)}
+.step-num.done{border-color:var(--pos);color:var(--pos);background:rgba(168,255,62,.08)}
+
+.act-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.act-grid.four-col{grid-template-columns:1fr 1fr 1fr 1fr}
+
+.actbtn{background:transparent;border:1px solid var(--brd);border-radius:6px;padding:7px 8px;font-family:'Space Mono',monospace;font-size:8px;color:var(--mut);cursor:pointer;text-align:left;line-height:1.4;transition:all .12s}
+.actbtn:hover:not(:disabled){border-color:var(--acc);color:var(--txt);background:rgba(0,229,255,.04)}
+.actbtn.sel-e{border-color:var(--warn);color:var(--warn);background:rgba(255,184,0,.07)}
+.actbtn.sel-u{border-color:var(--usr);color:var(--usr);background:var(--usr-dim)}
+.actbtn.sel-m{border-color:var(--mdl);color:var(--mdl);background:var(--mdl-dim)}
+.actbtn:disabled{opacity:.22;cursor:default}
+.actbtn.prob-hi{border-color:rgba(168,255,62,.22)}
+.actbtn.prob-mid{border-color:rgba(255,184,0,.18)}
+.actbtn.prob-low{border-color:rgba(74,90,122,.85);opacity:.82}
+.actbtn .atag{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:7px;color:var(--mut);margin-top:2px}
+.actbtn .probtag{font-size:7px;letter-spacing:.03em;text-transform:uppercase}
+.actbtn.prob-hi .probtag{color:var(--pos)}
+.actbtn.prob-mid .probtag{color:var(--warn)}
+.actbtn.prob-low .probtag{color:#6f7f9d}
+.actbtn .epill{display:inline-block;font-size:7px;padding:1px 4px;border-radius:3px;margin-top:3px}
+.ep-fv{background:rgba(0,229,255,.12);color:var(--acc)}
+.ep-ff{background:rgba(255,77,109,.12);color:var(--neg)}
+.ep-op{background:rgba(192,132,252,.12);color:var(--usr)}
+.ep-if{background:rgba(255,184,0,.12);color:var(--warn)}
+
+.divider{height:1px;background:var(--brd);margin:10px 0}
+
+.advance-btn{width:100%;padding:9px;background:transparent;border:1px solid var(--acc);border-radius:6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--acc);cursor:pointer;transition:all .12s;letter-spacing:.06em}
+.advance-btn:hover:not(:disabled){background:rgba(0,229,255,.07)}
+.advance-btn:disabled{opacity:.25;cursor:default;border-color:var(--brd);color:var(--mut)}
+.reset-btn{width:100%;margin-top:6px;padding:7px;background:transparent;border:1px solid var(--brd);border-radius:6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--mut);cursor:pointer;transition:all .12s}
+.reset-btn:hover{border-color:var(--neg);color:var(--neg)}
+
+.insight{background:rgba(13,18,32,.95);border:1px solid var(--brd);border-left:2px solid var(--acc);border-radius:0 6px 6px 0;padding:10px 14px;font-size:10px;color:var(--mut);line-height:1.65;min-height:32px}
+.insight b{color:var(--txt);font-weight:600}
+.insight.warn-ins{border-left-color:var(--neg)}
+.insight.pos-ins{border-left-color:var(--pos)}
+
+.compass-panel{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+canvas{border-radius:6px;display:block}
+.state-pill{font-family:'Space Mono',monospace;font-size:8px;text-align:center;padding:4px 8px;border-radius:4px;border:1px solid var(--brd);width:100%;letter-spacing:.05em}
+.sp-pos{color:var(--pos);border-color:rgba(168,255,62,.3);background:rgba(168,255,62,.05)}
+.sp-neg{color:var(--neg);border-color:rgba(255,77,109,.3);background:rgba(255,77,109,.05)}
+.sp-neu{color:var(--mut)}
+.sp-warn{color:var(--warn);border-color:rgba(255,184,0,.3);background:rgba(255,184,0,.05)}
+.sp-pre{color:var(--acc);border-color:rgba(0,229,255,.2);background:rgba(0,229,255,.04);font-style:italic}
+.axis-lbl{font-family:'Space Mono',monospace;font-size:7px;color:var(--mut);text-align:center;line-height:1.6;width:100%}
+
+.eng-block{width:100%;display:flex;flex-direction:column;gap:4px}
+.eng-header{display:flex;justify-content:space-between;align-items:center}
+.eng-val{font-family:'Space Mono',monospace;font-size:10px;color:var(--eng);font-weight:700}
+.eng-track{width:100%;height:5px;background:var(--brd);border-radius:3px;overflow:hidden}
+.eng-fill{height:100%;border-radius:3px;background:var(--eng);transition:width .4s ease;min-width:2px}
+.eng-note{font-family:'Space Mono',monospace;font-size:7px;color:var(--mut);line-height:1.5;margin-top:3px}
+.pressure-row{display:flex;gap:4px;margin-top:6px}
+.pbar{flex:1;display:flex;flex-direction:column;gap:2px}
+.pbar-lbl{font-family:'Space Mono',monospace;font-size:7px;color:var(--mut)}
+.pbar-track{height:3px;background:var(--brd);border-radius:2px;overflow:hidden}
+.pbar-fill-u{height:100%;background:var(--usr);border-radius:2px;transition:width .3s}
+.pbar-fill-m{height:100%;background:var(--mdl);border-radius:2px;transition:width .3s}
+
+/* LOG — ocupa el espacio restante de la columna derecha */
+.log-panel{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:10px;max-height:140px;overflow-y:auto}
+.log-e{font-family:'Space Mono',monospace;font-size:8px;color:var(--mut);margin-bottom:4px;border-left:2px solid var(--brd);padding-left:5px;line-height:1.5}
+.log-e.pos{border-left-color:rgba(168,255,62,.5);color:rgba(168,255,62,.65)}
+.log-e.neg{border-left-color:rgba(255,77,109,.5);color:rgba(255,77,109,.65)}
+.log-e.warn{border-left-color:rgba(255,184,0,.5);color:rgba(255,184,0,.65)}
+.log-e.neu{border-left-color:rgba(74,90,122,.5)}
+/* Separador de escenario en el log */
+.log-sep{font-family:'Space Mono',monospace;font-size:7px;color:var(--acc);letter-spacing:.08em;padding:4px 0 4px 5px;border-left:2px solid var(--acc);margin-bottom:4px;opacity:.7;line-height:1.4}
+.log-sep.first{margin-top:0}
+
+footer{margin-top:20px;font-family:'Space Mono',monospace;font-size:8px;color:var(--mut);text-align:center;padding-bottom:16px;letter-spacing:.06em}
+footer a{color:var(--mut);text-decoration:none}
+footer a:hover{color:var(--acc)}
+
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-svg-wrap{position:relative;width:32px;height:32px;flex-shrink:0}
+.logo-svg-wrap svg{display:block}
+.logo-svg-wrap::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:radial-gradient(circle,rgba(0,224,64,.18) 0%,rgba(0,229,255,.10) 50%,transparent 75%);pointer-events:none}
+
+</style>
+</head>
+<body>
+<div id="dc">
+
+<div class="topbar">
+  <div class="logo-wrap">
+    <div class="logo-svg-wrap"><svg width="45" height="45" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="cc"><circle cx="200" cy="200" r="170"/></clipPath><radialGradient id="bglo" cx="45%" cy="42%" r="55%"><stop offset="0%" stop-color="#0a1a4a"/><stop offset="100%" stop-color="#020814"/></radialGradient></defs><circle cx="200" cy="200" r="178" fill="#010610"/><circle cx="200" cy="200" r="170" fill="url(#bglo)"/><g clip-path="url(#cc)"><rect x="68" y="126" width="70" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="138" y="126" width="194" height="24" rx="3" fill="#00e040" opacity="0.85"/><rect x="68" y="166" width="100" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="168" y="166" width="164" height="24" rx="3" fill="#00e040" opacity="0.85"/><rect x="68" y="206" width="136" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="204" y="206" width="128" height="24" rx="3" fill="#00e040" opacity="0.85"/><rect x="68" y="246" width="112" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="180" y="246" width="152" height="24" rx="3" fill="#00e040" opacity="0.85"/><rect x="68" y="286" width="84" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="152" y="286" width="180" height="24" rx="3" fill="#00e040" opacity="0.85"/><circle cx="248" cy="190" r="26" fill="#ff7c00"/><circle cx="248" cy="190" r="18" fill="#ff9a30"/><circle cx="248" cy="190" r="10" fill="#ffbe6a"/></g><circle cx="200" cy="200" r="170" fill="none" stroke="#0d2060" stroke-width="1.5"/></svg></div>
+    <div>
+      <div class="logo">DriftCompass</div>
+      <div class="logosub" id="logosub">epistemic compass · interacción humano-IA</div>
+    </div>
+  </div>
+  <div class="topright">
+    <span class="turn-badge" id="tbadge">TURN 0</span>
+    <button class="langbtn" id="lbtn">EN</button>
+  </div>
+</div>
+
+<div class="banner" id="banner">
+  <span id="banner-txt">Selecciona el tipo de interacción y simula una conversación por turnos</span>
+</div>
+
+<div class="layout">
+<div class="left">
+  <div>
+    <div class="sec-header" id="sh-config"><span>Seleccion de binomio</span></div>
+    <div class="panel">
+      <div class="cfg-collapse-bar" onclick="toggleCfg()">
+        <div class="plbl" style="margin-bottom:0">
+          <span class="dot du"></span><span id="cfg-um-lbl">Usuario + Modelo</span>
+        </div>
+        <div class="cfg-active">
+          <span class="cfg-active-lbl" id="cfg-active-lbl">Seleccion activa</span>
+          <span class="cfg-scenario-badge" id="sc-badge">-</span>
+        </div>
+        <span class="cfg-arrow" id="cfg-arrow">&#9656;</span>
+      </div>
+      <div class="cfg-summary">
+        <div class="cfg-pot-head">
+          <span class="cfg-potential-lbl" id="cfg-pot-lbl">Potencial estructural del binomio</span>
+          <span class="cfg-pot-meta" id="cfg-pot-state">-</span>
+        </div>
+        <div class="cfg-pot-bars">
+          <div class="cfg-pot-card">
+            <div class="cfg-pot-title" id="cfg-pot-agency-lbl">Agencia</div>
+            <div class="cfg-pot-track"><div class="cfg-pot-fill agency" id="cfg-pot-agency-fill" style="width:0%"></div></div>
+            <div class="cfg-pot-meta"><span id="cfg-pot-agency-text">-</span><span id="cfg-pot-agency-num">-</span></div>
+          </div>
+          <div class="cfg-pot-card">
+            <div class="cfg-pot-title" id="cfg-pot-eng-lbl">Engagement</div>
+            <div class="cfg-pot-track"><div class="cfg-pot-fill engagement" id="cfg-pot-eng-fill" style="width:0%"></div></div>
+            <div class="cfg-pot-meta"><span id="cfg-pot-eng-text">-</span><span id="cfg-pot-eng-num">-</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="cfg-inner collapsed" id="cfg-inner">
+        <div class="sc-ctx" id="sc-ctx">-</div>
+        <div class="sc-panel">
+          <div class="sc-cols">
+            <div>
+              <div class="sc-col-header"><span class="sc-col-dot scu"></span><span id="sc-u-hdr">Usuario</span></div>
+              <div id="sc-u-btns"></div>
+            </div>
+            <div>
+              <div class="sc-col-header"><span class="sc-col-dot scm"></span><span id="sc-m-hdr">Modelo</span></div>
+              <div id="sc-m-btns"></div>
+            </div>
+          </div>
+        </div>
+        <div class="cfg-grid">
+          <div>
+            <div class="srow"><div class="sname" id="u0n">Rigidez<small id="u0d">Resistencia</small></div><input type="range" class="ur" id="u0" min="0" max="10" value="3" oninput="upd()"><span class="sv svu" id="uv0">3</span></div>
+            <div class="srow"><div class="sname" id="u1n">Apertura<small id="u1d">Curiosidad</small></div><input type="range" class="ur" id="u1" min="0" max="10" value="7" oninput="upd()"><span class="sv svu" id="uv1">7</span></div>
+            <div class="srow"><div class="sname" id="u2n">Bucle<small id="u2d">Busca validar</small></div><input type="range" class="ur" id="u2" min="0" max="10" value="2" oninput="upd()"><span class="sv svu" id="uv2">2</span></div>
+            <div class="srow"><div class="sname" id="u3n">Energia<small id="u3d">Cap. cognitiva</small></div><input type="range" class="ur" id="u3" min="0" max="10" value="7" oninput="upd()"><span class="sv svu" id="uv3">7</span></div>
+          </div>
+          <div>
+            <div class="srow"><div class="sname" id="m0n">Validacion<small id="m0d">Acuerdo</small></div><input type="range" class="mr" id="m0" min="0" max="10" value="5" oninput="upd()"><span class="sv svm" id="mv0">5</span></div>
+            <div class="srow"><div class="sname" id="m1n">Friccion<small id="m1d">Contraarg.</small></div><input type="range" class="mr" id="m1" min="0" max="10" value="2" oninput="upd()"><span class="sv svm" id="mv1">2</span></div>
+            <div class="srow"><div class="sname" id="m2n">Metacog.<small id="m2d">Activa reflex.</small></div><input type="range" class="mr" id="m2" min="0" max="10" value="1" oninput="upd()"><span class="sv svm" id="mv2">1</span></div>
+            <div class="srow"><div class="sname" id="m3n">Precision<small id="m3d">Calidad fact.</small></div><input type="range" class="mr" id="m3" min="0" max="10" value="9" oninput="upd()"><span class="sv svm" id="mv3">9</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="sec-header" id="sh-sim"><span>Simulacion</span></div>
+    <div class="sim-row">
+    <div class="sim-left">
+      <div class="flow-panel">
+        <div class="flow-step">
+          <div class="step-header">
+            <div class="step-num active" id="sn0">0</div>
+            <span id="sh0">Tipo de premisa</span>
+          </div>
+          <div class="act-grid four-col" id="eact"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="flow-step">
+          <div class="step-header">
+            <div class="step-num" id="sn1">1</div>
+            <span id="sh1">El usuario dice</span>
+          </div>
+          <div class="act-grid" id="uact"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="flow-step">
+          <div class="step-header">
+            <div class="step-num" id="sn2">2</div>
+            <span id="sh2">El modelo responde</span>
+          </div>
+          <div class="act-grid" id="mact"></div>
+        </div>
+        <div class="divider"></div>
+        <button class="advance-btn" id="adv-btn" disabled onclick="advance()">
+          <span id="adv-lbl">▶ SIGUIENTE TURNO</span>
+        </button>
+        <button class="reset-btn" id="rst-btn" onclick="reset()">↺ reset</button>
+      </div>
+      <div class="insight" id="insight">—</div>
+    </div><!-- /sim-left -->
+  <div class="sim-right">
+  <div class="compass-panel">
+    <div class="plbl"><span class="dot ds"></span><span id="sys-lbl">Sistema</span></div>
+    <canvas id="cv" width="178" height="178"></canvas>
+    <div class="state-pill sp-neu" id="spill">—</div>
+    <div class="axis-lbl" id="axis-lbl">↑ agencia epistémica · ↓ pérdida de agencia</div>
+    <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--mut);line-height:2;width:100%">
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:14px;height:2px;background:var(--usr);border-radius:1px"></div><span id="lg-u">usuario</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:14px;height:2px;background:var(--mdl);border-radius:1px"></div><span id="lg-m">modelo</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:14px;height:2px;background:var(--pos);border-radius:1px"></div><span id="lg-s">deriva sistema</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="eng-block">
+      <div class="eng-header">
+        <div class="plbl" style="margin-bottom:0"><span class="dot de"></span><span id="eng-lbl">Engagement</span></div>
+        <span class="eng-val" id="eng-val">0</span>
+      </div>
+      <div class="eng-track"><div class="eng-fill" id="eng-fill" style="width:0%"></div></div>
+      <div class="eng-note" id="eng-note">—</div>
+    </div>
+    <div class="pressure-row">
+      <div class="pbar">
+        <div class="pbar-lbl" id="pr-u-lbl">presión usr</div>
+        <div class="pbar-track"><div class="pbar-fill-u" id="pr-u-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pbar">
+        <div class="pbar-lbl" id="pr-m-lbl">presión mdl</div>
+        <div class="pbar-track"><div class="pbar-fill-m" id="pr-m-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /sim-right -->
+  </div><!-- /sim-row -->
+  </div><!-- /sim section -->
+
+  <div class="log-panel">
+    <div class="plbl" id="log-lbl">Registro</div>
+    <div id="log"></div>
+  </div>
+
+</div><!-- /left -->
+</div><!-- /layout -->
+
+<footer>
+  DriftCompass · <span id="ft-phase">v0.7 beta</span> ·
+  <a href="https://github.com/V0raOnline/DriftCompass" target="_blank">v0raonline.github.com</a>
+  <a href="https://v0raonline.substack.com" target="_blank">v0raonline.substack.com</a>
+</footer>
+
+</div>
+
+<script>
+const TX={
+es:{
+  sub:"epistemic compass · interacción humano-IA",ftph:"fase 1",
+  banner:"Selecciona el tipo de interacción y simula una conversación por turnos",
+  sh_scenario:"Escenario",sh_config:"Selección de binomio",sh_sim:"Simulación",
+  sc_u_hdr:"Usuario",sc_m_hdr:"Modelo",
+  u0n:"Rigidez",u0d:"Resistencia",u1n:"Apertura",u1d:"Curiosidad",
+  u2n:"Bucle",u2d:"Busca validar",u3n:"Energía",u3d:"Cap. cognitiva",
+  m0n:"Validación",m0d:"Acuerdo",m1n:"Fricción",m1d:"Contraarg.",
+  m2n:"Metacog.",m2d:"Activa reflex.",m3n:"Precisión",m3d:"Calidad fact.",
+  cfg_u:"Usuario",cfg_m:"Modelo",cfg_um:"Usuario + Modelo",cfg_active:"Selección activa",cfg_struct:"Potencial estructural del binomio",cfg_struct_pending:"requiere binomio completo",cfg_struct_agency:"Agencia",cfg_struct_eng:"Engagement",cfg_struct_fav:"favorable",cfg_struct_mixed:"mixto",cfg_struct_frag:"frágil",cfg_struct_high:"alto",cfg_struct_mid:"medio",cfg_struct_low:"bajo",prob:"prob",prob_hi:"alta",prob_mid:"media",prob_low:"baja",sys:"Sistema",log:"Registro",eng:"Engagement",
+  sh0:"Tipo de premisa",sh1:"El usuario dice",sh2:"El modelo responde",
+  adv:"▶ SIGUIENTE TURNO",rst:"↺ reset",
+  lg_u:"usuario",lg_m:"modelo",lg_s:"deriva sistema",
+  pr_u:"presión usr",pr_m:"presión mdl",
+  axis:"↑ agencia epistémica · ↓ pérdida de agencia",
+  dp:"↑ AGENCIA CRECIENTE",dn:"↓ PÉRDIDA DE AGENCIA",dnu:"→ NEUTRAL",dw:"⚡ INESTABLE",dpre:"◌ previsualización",
+  eng_addictive:"eng alto + agencia cayendo · <b>patrón adictivo</b>",
+  eng_open_friction:"usuario abierto + modelo que reta · <b>eng sano</b>",
+  eng_loop_friction:"bucle + fricción · <b>riesgo de abandono</b>",
+  eng_hi:"engagement alto · la conversación engancha",
+  eng_lo:"engagement bajo · conversación plana",
+  log_sc_init:"— escenario inicial:",
+  log_sc_change:"— cambio de escenario:",
+  patterns:{
+    confirmation_spiral:"🔴 patrón: <b>espiral de confirmación</b> — el sistema refuerza creencias sin contrastarlas",
+    certainty_loop:"🔴 patrón: <b>bucle de certeza</b> — contenido infalsable tratado como verdad cerrada",
+    passive_drift:"🟠 patrón: <b>deriva pasiva</b> — baja energía cognitiva; el sistema avanza sin evaluación",
+    active_resistance:"🟠 patrón: <b>resistencia activa</b> — el usuario rechaza la corrección; la fricción no penetra",
+    missed_opportunity:"🟠 patrón: <b>oportunidad perdida</b> — apertura del usuario desaprovechada por el modelo",
+    active_exploration:"🟢 patrón: <b>exploración activa</b> — el sistema genera preguntas nuevas, no confirma las existentes",
+    cocreation:"🟢 patrón: <b>cocreación</b> — usuario y modelo construyen juntos; la agencia se amplifica",
+    slow_shift:"🟡 patrón: <b>desplazamiento lento</b> — la inercia cede; la dirección empieza a cambiar",
+    cognitive_threshold:"⚠️ patrón: <b>umbral cognitivo</b> — energía insuficiente para procesar fricción"
+  },
+  et:["Factual verdadera","Factual falsa","Opinión","Infalsable"],
+  etag:["factual-V","factual-F","opinión","infalsable"],
+  etcls:["ep-fv","ep-ff","ep-op","ep-if"],
+  ua:["Busca confirmación","Introduce duda","Cambia de marco","Insiste en idea fija"],
+  uat:["usuario","usuario","usuario","usuario"],
+  ma:["Confirma","Corrige con datos","Pregunta socrática","Reformula el marco"],
+  mat:["modelo","modelo","modelo","modelo"],
+  su:[
+    {id:'u_loop',    lbl:"Bucle de validación",  sub:"Busca confirmar, alta resistencia",  v:[6,3,7,7]},
+    {id:'u_open',    lbl:"Usuario abierto",       sub:"Curiosidad activa, baja rigidez",    v:[2,8,2,8]},
+    {id:'u_low_e',   lbl:"Energía baja",          sub:"Sobrecarga cognitiva, bloqueo",      v:[5,4,4,2]},
+    {id:'u_rigid',   lbl:"Alta rigidez",           sub:"Resistente al cambio, insistente",  v:[8,2,6,6]},
+    {id:'u_meta',    lbl:"Con metacognición",      sub:"Evalúa su propio proceso",           v:[3,7,2,8]}
+  ],
+  sm:[
+    {id:'m_syco',    lbl:"Sycofante",              sub:"Valida siempre, sin fricción",       v:[9,1,0,7]},
+    {id:'m_correct', lbl:"Solo corrige",            sub:"Precisión alta, sin metacog.",      v:[1,9,0,10]},
+    {id:'m_meta',    lbl:"Con metacognición",       sub:"Activa reflexión, fricción media",  v:[2,4,8,8]},
+    {id:'m_adaptive',lbl:"Fricción adaptativa",     sub:"Ajusta según contexto",             v:[3,5,5,9]},
+    {id:'m_neutral', lbl:"Modelo neutro",           sub:"Validación media, sin extremos",    v:[5,3,2,8]}
+  ],
+  sc_ctx:{
+    default:"Selecciona un perfil de usuario y de modelo para ver qué tipo de conversación emerge.",
+    u_loop_m_syco:"<b>Patrón adictivo clásico.</b> Usuario que busca validación + modelo que la da. Engagement alto, agencia epistémica en caída libre.",
+    u_loop_m_correct:"<b>El argumento central.</b> Mismo usuario en bucle, modelo ahora corrige con precisión. La agencia sigue cayendo — el problema no estaba en el output del modelo.",
+    u_loop_m_meta:"<b>La intervención que funciona.</b> La metacognición del modelo empieza a mover la inercia del usuario. No es la corrección factual — es activar el proceso de evaluación propio.",
+    u_loop_m_adaptive:"<b>Fricción dosificada.</b> El modelo intenta ajustar su presión al contexto, pero el usuario sigue buscando confirmación. Puede evitar el colapso rápido, aunque no rompe por sí solo el bucle.",
+    u_loop_m_neutral:"<b>Estabilización ambigua.</b> El modelo no intensifica el bucle tanto como un sycofante, pero tampoco introduce suficiente fricción para reorientarlo. La deriva queda contenida, no resuelta.",
+    u_open_m_syco:"<b>Oportunidad perdida.</b> Usuario con apertura real + modelo que solo valida. Se desaprovecha la disposición del usuario a aprender.",
+    u_open_m_correct:"<b>Sistema bien calibrado.</b> Usuario abierto + modelo preciso con fricción. Agencia creciente, engagement sano.",
+    u_open_m_meta:"<b>Combinación óptima.</b> Usuario abierto + metacognición activa. La conversación favorece evaluación más reflexiva y ajuste mutuo del proceso.",
+    u_open_m_adaptive:"<b>Buen acoplamiento.</b> La apertura del usuario permite que la fricción adaptativa encuentre el tono justo. Hay condiciones para crecimiento sostenido sin castigar el engagement.",
+    u_open_m_neutral:"<b>Interacción cómoda.</b> La conversación puede mantenerse estable y agradable, pero sin suficiente tensión productiva para explotar toda la apertura del usuario.",
+    u_low_e_m_syco:"<b>Vulnerabilidad máxima.</b> Energía baja hace al usuario más susceptible a la validación. Engagement puede subir aunque la agencia caiga.",
+    u_low_e_m_correct:"<b>Fricción por encima del umbral.</b> El modelo corrige, pero el usuario dispone de pocos recursos para procesarlo. La precisión no basta cuando la energía cognitiva está comprometida.",
+    u_low_e_m_meta:"<b>Límite del diseño.</b> La metacognición requiere recursos cognitivos. Con energía baja, el modelo no puede activar lo que el usuario no tiene disponible.",
+    u_low_e_m_adaptive:"<b>Contención sensible.</b> El ajuste contextual del modelo puede reducir daño y evitar sobrecarga extra, pero la baja energía sigue limitando cuánto puede devolverse al usuario.",
+    u_low_e_m_neutral:"<b>Deriva silenciosa.</b> Sin validación extrema ni intervención fuerte, la conversación puede avanzar con poca elaboración. Riesgo de pasividad más que de conflicto.",
+    u_rigid_m_syco:"<b>Rigidez reforzada.</b> Un usuario resistente al cambio encuentra en la validación del modelo una capa extra de cierre. La conversación se vuelve estable, pero epistémicamente pobre.",
+    u_rigid_m_correct:"<b>Corrección sin efecto.</b> La inercia del usuario es tan alta que turnos de corrección factual correcta no mueven los sliders suficiente.",
+    u_rigid_m_meta:"<b>Proceso lento pero real.</b> La metacognición acumula presión más efectivamente que la corrección directa. La dirección cambia.",
+    u_rigid_m_adaptive:"<b>Entrada lateral.</b> El modelo evita chocar frontalmente con la rigidez y busca un punto de apoyo contextual. No garantiza cambio, pero mejora la posibilidad de penetrar la inercia.",
+    u_rigid_m_neutral:"<b>Empate estático.</b> Ninguno de los dos polos fuerza una reconfiguración. La conversación se sostiene, pero la estructura del usuario permanece casi intacta.",
+    u_meta_m_syco:"<b>Autoconciencia desaprovechada.</b> El usuario tiene capacidad de examinar su proceso, pero el modelo no la activa ni la desafía. Hay potencial, pero se infrautiliza.",
+    u_meta_m_correct:"<b>Base receptiva.</b> El usuario ya cuenta con recursos metacognitivos, así que la corrección factual tiene más donde apoyarse. La mejora puede ser real sin necesidad de gran intensidad.",
+    u_meta_m_meta:"<b>Reflexión recíproca.</b> Ambos lados operan con atención al proceso. La conversación favorece ajustes finos, discriminación de marcos y agencia creciente.",
+    u_meta_m_adaptive:"<b>Sincronía estratégica.</b> El modelo adapta su intervención a un usuario ya capaz de autoevaluarse. Es una combinación flexible y prometedora para cambios estables.",
+    u_meta_m_neutral:"<b>Potencial en reposo.</b> El usuario aporta metacognición, pero el modelo no la impulsa demasiado. Puede haber buena lectura interna sin que la conversación gane mucha tracción transformadora.",
+    default_u:"Perfil de usuario seleccionado. Elige un perfil de modelo para ver la dinámica completa.",
+    default_m:"Perfil de modelo seleccionado. Elige un perfil de usuario para ver la dinámica completa."
+  },
+  ins:{
+    fv_confirm:"El modelo confirma algo verdadero. Correcto y epistémicamente neutro — no empuja al sistema con fuerza en ninguna dirección.",
+    ff_confirm:"El modelo confirma algo falso. <b>Empuja el sistema hacia pérdida de agencia — el usuario queda más expuesto a un modelo mental peor.</b>",
+    ff_correct:"El modelo corrige un error factual. <b>Fricción útil — tiende a devolver agencia, aunque un solo turno no deshaga un bucle.</b>",
+    fv_friction:"El modelo contraargumenta algo verdadero. <b>Fricción innecesaria — tiende a erosionar confianza sin una ganancia epistémica clara.</b>",
+    op_confirm:"El modelo valida una opinión sin matizar. <b>Refuerza convicción más que capacidad de evaluar — deriva compatible con menor agencia.</b>",
+    op_meta:"La metacognición aplicada a una opinión activa evaluación propia. <b>Tiende a devolver el foco al proceso de evaluación del usuario.</b>",
+    if_confirm:"El modelo confirma algo infalsable como certeza. <b>Empuja el sistema hacia menor agencia — cierra preguntas que deberían seguir abiertas.</b>",
+    if_reframe:"El modelo señala el tipo epistémico del contenido. <b>No aporta datos, pero sí un marco que puede reabrir la evaluación.</b>",
+    if_correct:"El modelo aplica corrección factual a algo infalsable. <b>Categoría incorrecta — empuja al usuario a tratar como respondible lo que no lo es.</b>",
+    loop:"Bucle activo. Validación genera más búsqueda de validación. <b>Un output correcto aislado no rompe esta deriva — el locus de cambio no está solo en la respuesta.</b>",
+    rigid:"Modelo preciso con fricción, usuario rígido. <b>La deriva puede seguir siendo descendente — corregir el modelo no resuelve por sí mismo el problema del sistema.</b>",
+    meta:"Metacognición activa. <b>Introduce una tendencia a que el usuario evalúe su propio proceso — base de agencia epistémica real.</b>",
+    good:"Apertura + fricción útil = dirección favorable. <b>El sistema tiende a generar más agencia cuando ambos agentes están alineados.</b>",
+    energy:"Energía baja. <b>La metacognición cuesta recursos — su efecto estructural se debilita justo cuando más se necesitaría.</b>",
+    def:"Elige el tipo de premisa para empezar el turno."
+  }
+},
+en:{
+  sub:"epistemic compass · human-AI interaction",ftph:"phase 1",
+  banner:"Select the interaction type and simulate a conversation turn by turn",
+  sh_scenario:"Scenario",sh_config:"Binomial selection",sh_sim:"Simulation",
+  sc_u_hdr:"User",sc_m_hdr:"Model",
+  u0n:"Rigidity",u0d:"Resistance",u1n:"Openness",u1d:"Curiosity",
+  u2n:"Loop",u2d:"Seeks validation",u3n:"Energy",u3d:"Cog. capacity",
+  m0n:"Validation",m0d:"Agreement",m1n:"Friction",m1d:"Counterarg.",
+  m2n:"Metacog.",m2d:"Activates refl.",m3n:"Accuracy",m3d:"Factual quality",
+  cfg_u:"User",cfg_m:"Model",cfg_um:"User + Model",cfg_active:"Active selection",cfg_struct:"Structural potential of the binomial",cfg_struct_pending:"complete binomial needed",cfg_struct_agency:"Agency",cfg_struct_eng:"Engagement",cfg_struct_fav:"favorable",cfg_struct_mixed:"mixed",cfg_struct_frag:"fragile",cfg_struct_high:"high",cfg_struct_mid:"mid",cfg_struct_low:"low",prob:"prob",prob_hi:"high",prob_mid:"mid",prob_low:"low",sys:"System",log:"Log",eng:"Engagement",
+  sh0:"Premise type",sh1:"User says",sh2:"Model responds",
+  adv:"▶ NEXT TURN",rst:"↺ reset",
+  lg_u:"user",lg_m:"model",lg_s:"system drift",
+  pr_u:"user pressure",pr_m:"model pressure",
+  axis:"↑ epistemic agency · ↓ agency loss",
+  dp:"↑ GROWING AGENCY",dn:"↓ AGENCY LOSS",dnu:"→ NEUTRAL",dw:"⚡ UNSTABLE",dpre:"◌ preview",
+  eng_addictive:"high eng + agency falling · <b>addictive pattern</b>",
+  eng_open_friction:"open user + challenging model · <b>healthy engagement</b>",
+  eng_loop_friction:"loop + friction · <b>dropout risk</b>",
+  eng_hi:"high engagement · conversation is absorbing",
+  eng_lo:"low engagement · flat conversation",
+  log_sc_init:"— initial scenario:",
+  log_sc_change:"— scenario change:",
+  patterns:{
+    confirmation_spiral:"🔴 pattern: <b>confirmation spiral</b> — system reinforces beliefs without challenging them",
+    certainty_loop:"🔴 pattern: <b>certainty loop</b> — unfalsifiable content treated as closed truth",
+    passive_drift:"🟠 pattern: <b>passive drift</b> — low cognitive energy; system moves without evaluation",
+    active_resistance:"🟠 pattern: <b>active resistance</b> — user rejects correction; friction doesn't penetrate",
+    missed_opportunity:"🟠 pattern: <b>missed opportunity</b> — user's openness wasted by the model",
+    active_exploration:"🟢 pattern: <b>active exploration</b> — system generates new questions, not confirming existing ones",
+    cocreation:"🟢 pattern: <b>co-creation</b> — user and model build together; agency amplifies",
+    slow_shift:"🟡 pattern: <b>slow shift</b> — inertia yields; direction starts to change",
+    cognitive_threshold:"⚠️ pattern: <b>cognitive threshold</b> — insufficient energy to process friction"
+  },
+  et:["True factual","False factual","Opinion","Unfalsifiable"],
+  etag:["factual-T","factual-F","opinion","unfalsifiable"],
+  etcls:["ep-fv","ep-ff","ep-op","ep-if"],
+  ua:["Seeks confirmation","Introduces doubt","Changes frame","Insists on fixed idea"],
+  uat:["user","user","user","user"],
+  ma:["Confirms","Corrects with data","Socratic question","Reframes"],
+  mat:["model","model","model","model"],
+  su:[
+    {id:'u_loop',    lbl:"Validation loop",     sub:"Seeks confirmation, high resistance", v:[6,3,7,7]},
+    {id:'u_open',    lbl:"Open user",            sub:"Active curiosity, low rigidity",      v:[2,8,2,8]},
+    {id:'u_low_e',   lbl:"Low energy",           sub:"Cognitive overload, blocked",         v:[5,4,4,2]},
+    {id:'u_rigid',   lbl:"High rigidity",        sub:"Resistant to change, insistent",      v:[8,2,6,6]},
+    {id:'u_meta',    lbl:"Metacognitive",        sub:"Evaluates own thinking process",      v:[3,7,2,8]}
+  ],
+  sm:[
+    {id:'m_syco',    lbl:"Sycophant",            sub:"Always validates, no friction",       v:[9,1,0,7]},
+    {id:'m_correct', lbl:"Corrects only",        sub:"High accuracy, no metacog.",          v:[1,9,0,10]},
+    {id:'m_meta',    lbl:"With metacognition",   sub:"Activates reflection, mid friction",  v:[2,4,8,8]},
+    {id:'m_adaptive',lbl:"Adaptive friction",    sub:"Adjusts to context",                  v:[3,5,5,9]},
+    {id:'m_neutral', lbl:"Neutral model",        sub:"Mid validation, no extremes",         v:[5,3,2,8]}
+  ],
+  sc_ctx:{
+    default:"Select a user profile and a model profile to see what conversation dynamic emerges.",
+    u_loop_m_syco:"<b>Classic addictive pattern.</b> Validation-seeking user + validating model. High engagement, epistemic agency in freefall.",
+    u_loop_m_correct:"<b>The central argument.</b> Same user in loop, model now corrects with precision. Agency still falls — the problem was not in the model's output.",
+    u_loop_m_meta:"<b>The intervention that works.</b> Model's metacognition starts moving user's inertia. It's not factual correction — it's activating the user's own evaluation process.",
+    u_loop_m_adaptive:"<b>Dosed friction.</b> The model tries to match pressure to context, but the user still seeks confirmation. It may slow collapse, though it does not break the loop by itself.",
+    u_loop_m_neutral:"<b>Ambiguous stabilization.</b> The model does not intensify the loop as much as a sycophant would, but it also does not introduce enough friction to redirect it. The drift is contained, not resolved.",
+    u_open_m_syco:"<b>Missed opportunity.</b> User with genuine openness + model that only validates. The user's disposition to learn is wasted.",
+    u_open_m_correct:"<b>Well-calibrated system.</b> Open user + accurate model with friction. Growing agency, healthy engagement.",
+    u_open_m_meta:"<b>Optimal combination.</b> Open user + active metacognition. The conversation supports more reflective evaluation and mutual adjustment of the process.",
+    u_open_m_adaptive:"<b>Good fit.</b> The user's openness lets adaptive friction find the right tone. Conditions are strong for sustained growth without punishing engagement.",
+    u_open_m_neutral:"<b>Comfortable interaction.</b> The conversation can remain stable and pleasant, but without enough productive tension to fully use the user's openness.",
+    u_low_e_m_syco:"<b>Maximum vulnerability.</b> Low energy makes the user more susceptible to validation. Engagement may rise even as agency falls.",
+    u_low_e_m_correct:"<b>Friction above threshold.</b> The model corrects, but the user has too few resources to process it. Accuracy alone is not enough when cognitive energy is compromised.",
+    u_low_e_m_meta:"<b>Design limit.</b> Metacognition requires cognitive resources. With low energy, the model cannot activate what the user doesn't have available.",
+    u_low_e_m_adaptive:"<b>Sensitive containment.</b> The model's contextual adjustment can reduce harm and avoid extra overload, but low energy still limits how much agency can be restored.",
+    u_low_e_m_neutral:"<b>Silent drift.</b> Without extreme validation or strong intervention, the conversation may proceed with little elaboration. The risk is passivity more than conflict.",
+    u_rigid_m_syco:"<b>Reinforced rigidity.</b> A change-resistant user finds an extra layer of closure in the model's validation. The conversation becomes stable, but epistemically poor.",
+    u_rigid_m_correct:"<b>Correction without effect.</b> User inertia is so high that turns of correct factual correction don't move the sliders enough.",
+    u_rigid_m_meta:"<b>Slow but real process.</b> Metacognition accumulates pressure more effectively than direct correction. Direction changes.",
+    u_rigid_m_adaptive:"<b>Side entry.</b> The model avoids frontal collision with rigidity and looks for contextual leverage instead. It does not guarantee change, but it improves the odds of penetrating inertia.",
+    u_rigid_m_neutral:"<b>Static draw.</b> Neither side forces a reconfiguration. The conversation holds, but the user's structure remains almost intact.",
+    u_meta_m_syco:"<b>Wasted self-awareness.</b> The user can examine their own process, but the model neither activates nor challenges that capacity. There is potential, but it is underused.",
+    u_meta_m_correct:"<b>Receptive base.</b> The user already has metacognitive resources, so factual correction has something to build on. Improvement can be real without requiring extreme intensity.",
+    u_meta_m_meta:"<b>Reciprocal reflection.</b> Both sides attend to process. The conversation favors fine-grained adjustment, frame discrimination, and growing agency.",
+    u_meta_m_adaptive:"<b>Strategic synchrony.</b> The model adapts its intervention to a user already able to self-evaluate. This is a flexible and promising combination for stable change.",
+    u_meta_m_neutral:"<b>Potential at rest.</b> The user brings metacognition, but the model does not push it very far. There may be good internal reading without the conversation gaining much transformative traction.",
+    default_u:"User profile selected. Choose a model profile to see the full dynamic.",
+    default_m:"Model profile selected. Choose a user profile to see the full dynamic."
+  },
+  ins:{
+    fv_confirm:"Model confirms something true. Correct and epistemically neutral — it does not strongly push the system either way.",
+    ff_confirm:"Model confirms something false. <b>Pushes the system toward agency loss — the user becomes more exposed to a worse mental model.</b>",
+    ff_correct:"Model corrects a factual error. <b>Useful friction — tends to restore agency, even if one turn does not undo a loop.</b>",
+    fv_friction:"Model counterargues something true. <b>Unnecessary friction — tends to erode trust without clear epistemic gain.</b>",
+    op_confirm:"Model validates an opinion without nuance. <b>Reinforces conviction more than evaluative capacity — a drift compatible with lower agency.</b>",
+    op_meta:"Metacognition on opinion activates self-evaluation. <b>Tends to return attention to the user's own evaluative process.</b>",
+    if_confirm:"Model confirms an unfalsifiable claim as certainty. <b>Pushes the system toward lower agency — closes questions that should stay open.</b>",
+    if_reframe:"Model names the epistemic type of the content. <b>No data, but a frame that can reopen evaluation.</b>",
+    if_correct:"Model applies factual correction to something unfalsifiable. <b>Wrong category — pushes the user to treat as answerable what is not.</b>",
+    loop:"Loop active. Validation generates more validation-seeking. <b>An isolated correct answer does not break this drift — the locus of change is not only in the output.</b>",
+    rigid:"Model accurate with friction, user rigid. <b>The drift may still be downward — fixing the model alone does not fix the system.</b>",
+    meta:"Metacognition active. <b>Introduces a tendency for the user to evaluate their own process — the basis of real epistemic agency.</b>",
+    good:"Openness + useful friction = favorable direction. <b>The system tends to generate more agency when both agents are aligned.</b>",
+    energy:"Low energy. <b>Metacognition costs resources — its structural effect weakens exactly when it would be most needed.</b>",
+    def:"Choose the premise type to start the turn."
+  }
+}
+};
+
+function epistemicEffect(eType,mAction){
+  const table={
+    0:{0:{d:0,  e:1, ik:'fv_confirm'},1:{d:-1, e:-1,ik:'fv_friction'},2:{d:-0.3,e:0, ik:'fv_confirm'},3:{d:0,  e:0, ik:'fv_confirm'}},
+    1:{0:{d:-3, e:2, ik:'ff_confirm'},1:{d:2,  e:0, ik:'ff_correct'}, 2:{d:1.5,e:1, ik:'ff_correct'}, 3:{d:0.5,e:0, ik:'ff_correct'}},
+    2:{0:{d:-1.5,e:2,ik:'op_confirm'},1:{d:0,  e:-1,ik:'op_confirm'}, 2:{d:1.5,e:1, ik:'op_meta'},    3:{d:2,  e:1, ik:'op_meta'}},
+    3:{0:{d:-2, e:3, ik:'if_confirm'},1:{d:-1.5,e:1,ik:'if_correct'}, 2:{d:1,  e:2, ik:'if_reframe'}, 3:{d:3,  e:2, ik:'if_reframe'}}
+  };
+  return table[eType][mAction];
+}
+
+let pressureU=[0,0,0,0],pressureM=[0,0,0,0];
+let pendingUD=[0,0,0,0],pendingMD=[0,0,0,0],pendingEngDelta=0;
+const U_PRESSURE=[[0,-1,3,0],[0,2,-2,0],[-2,1,0,-1],[2,-2,3,0]];
+const M_PRESSURE=[[1,-1,0,0],[0,1,0,1],[-2,0,3,0],[-1,1,2,0]];
+const M_USER_PRESSURE=[[0,-2,2,-1],[0,1,-1,0],[0,2,-2,1],[0,1,-1,0]];
+
+let lang='es',turn=0,hist=[],selE=-1,selU=-1,selM=-1,phase=0,engagement=0;
+let activeScU=null,activeScM=null;
+let lastTurnE=-1,lastTurnU=-1,lastTurnM=-1;
+// Track last logged scenario to detect changes
+let lastLoggedScU=null,lastLoggedScM=null;
+
+const t=k=>TX[lang][k]??k;
+const gv=(p,i)=>parseInt(document.getElementById(p+i).value);
+const sv=(p,i,v)=>{const el=document.getElementById(p+i);if(el)el.value=Math.max(0,Math.min(10,v))};
+const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+
+function thresholdU(){return 2+Math.floor(gv('u',0)/3);}
+function thresholdM(){return 2+Math.floor(gv('m',0)/4);}
+
+function applyPressure(arr,prefix,thr){
+  for(let i=0;i<4;i++){
+    if(Math.abs(arr[i])>=thr){
+      const d=arr[i]>0?1:-1;
+      sv(prefix,i,gv(prefix,i)+d);
+      arr[i]-=d*thr;
+    }
+  }
+}
+
+function calcStateFromValues(u,m){
+  const uA=(u[1]-u[0]*0.8-u[2]*0.6)*0.45;
+  const mA=(m[2]*1.3+m[1]*0.5-m[0]*0.7)*0.35;
+  const eA=(u[3]-5)*0.1;
+  const y=clamp((uA+mA+eA)/4,-1,1);
+  const x=clamp((u[1]-u[0])/10+(m[2]-m[0])/10*0.5,-1,1);
+  const loopPattern=u[2]>7&&m[0]>7;
+  const eType=selE>=0?selE:lastTurnE;
+  const loop=loopPattern&&eType!==0;
+  const rigid=u[0]>6&&m[1]>6&&m[2]<3;
+  const meta=m[2]>6&&u[1]>4&&u[3]>5;
+  const good=u[1]>6&&u[0]<4&&m[1]>4;
+  const low=u[3]<3;
+  const baseIk=low?'energy':loop?'loop':rigid?'rigid':meta?'meta':good?'good':'def';
+  const sk=loop?'dw':y>0.15?'dp':y<-0.15?'dn':'dnu';
+  const sc=loop?'sp-warn':y>0.15?'sp-pos':y<-0.15?'sp-neg':'sp-neu';
+  return{x,y,baseIk,sk,sc,loop};
+}
+
+function simulateTurnOutcome(){
+  const u=[0,1,2,3].map(i=>gv('u',i));
+  const m=[0,1,2,3].map(i=>gv('m',i));
+  const pU=pressureU.slice();
+  const pM=pressureM.slice();
+  let nextEngagement=engagement;
+
+  const thU=2+Math.floor(u[0]/3);
+  const thM=2+Math.floor(m[0]/4);
+  for(let i=0;i<4;i++){
+    if(Math.abs(pU[i])>=thU){
+      const d=pU[i]>0?1:-1;
+      u[i]=clamp(u[i]+d,0,10);
+      pU[i]-=d*thU;
+    }
+    if(Math.abs(pM[i])>=thM){
+      const d=pM[i]>0?1:-1;
+      m[i]=clamp(m[i]+d,0,10);
+      pM[i]-=d*thM;
+    }
+  }
+
+  if(selE>=0&&selM>=0){
+    const ef=epistemicEffect(selE,selM);
+    if(ef.d>0){pU[1]+=Math.abs(ef.d)*.5;pU[0]-=Math.abs(ef.d)*.3;}
+    else if(ef.d<0){pU[0]+=Math.abs(ef.d)*.5;pU[1]-=Math.abs(ef.d)*.3;}
+    nextEngagement=clamp(engagement+pendingEngDelta,0,100);
+  }
+
+  return{
+    u,m,
+    pressureU:pU,
+    pressureM:pM,
+    engagement:nextEngagement,
+    state:calcStateFromValues(u,m)
+  };
+}
+
+
+// Detecta patrón emergente basado en trayectoria (mín. 3 turnos) y estado actual
+function detectPattern(){
+  if(hist.length < 3) return null;
+  const recent = hist.slice(-4); // últimos 4 puntos
+  const u0=gv('u',0),u1=gv('u',1),u2=gv('u',2),u3=gv('u',3);
+  const m0=gv('m',0),m2=gv('m',2);
+
+  // Tendencia de la trayectoria reciente
+  const avgY = recent.reduce((s,p)=>s+p.y,0)/recent.length;
+  const lastY = recent[recent.length-1].y;
+  const firstY = recent[0].y;
+  const trending_down = lastY < firstY - 0.1;
+  const trending_up   = lastY > firstY + 0.1;
+  const sustained_neg = avgY < -0.15;
+  const sustained_pos = avgY > 0.15;
+
+  // Condiciones de estado
+  const loop    = u2>6 && m0>6;
+  const lowE    = u3<3;
+  const rigid   = u0>6 && gv('m',1)>6 && m2<3;
+  const openU   = u1>6 && u0<4;
+  const metaM   = m2>6;
+  const sycoM   = m0>7 && gv('m',1)<3;
+  const eType   = selE>=0?selE:lastTurnE; // tipo epistémico relevante
+
+  // Patrones negativos/neutros
+  if(loop && sustained_neg && (eType===1||eType===2)) return 'confirmation_spiral';
+  if(loop && sustained_neg && eType===3)              return 'certainty_loop';
+  if(lowE && sustained_neg)                           return 'cognitive_threshold';
+  if(rigid && sustained_neg)                          return 'active_resistance';
+  if(openU && sycoM && Math.abs(avgY)<0.1)            return 'missed_opportunity';
+  if(u3<4 && !metaM)                                  return 'passive_drift';
+
+  // Patrones positivos
+  if(sustained_pos && openU && metaM && (eType===2||eType===3||eType===-1))
+                                                       return 'cocreation';
+  if(sustained_pos && (openU||metaM))                 return 'active_exploration';
+
+  // Transición
+  if(trending_up && !sustained_pos && hist.length>=4)  return 'slow_shift';
+
+  return null;
+}
+function calcSys(usePreview){
+  let u0=gv('u',0),u1=gv('u',1),u2=gv('u',2),u3=gv('u',3);
+  let m0=gv('m',0),m1=gv('m',1),m2=gv('m',2);
+  if(usePreview&&selM>=0) return simulateTurnOutcome().state;
+  return calcStateFromValues([u0,u1,u2,u3],[m0,m1,m2,gv('m',3)]);
+}
+
+function getScCtx(){
+  const L=TX[lang].sc_ctx;
+  if(!activeScU&&!activeScM) return L.default;
+  if(activeScU&&!activeScM) return L.default_u;
+  if(!activeScU&&activeScM) return L.default_m;
+  const su=TX[lang].su.find(s=>s.id===activeScU);
+  const sm=TX[lang].sm.find(s=>s.id===activeScM);
+  const key=activeScU+'_'+activeScM;
+  const specific=L[key];
+  const isInitial=turn===0&&hist.length===0;
+  if(specific){
+    if(isInitial){
+      return lang==='es'
+        ? '<b>Hipótesis inicial.</b> Esta combinación sugiere esta dinámica probable si se sostiene en varios turnos: '+specific
+        : '<b>Initial hypothesis.</b> This combination suggests the following likely dynamic if it persists across turns: '+specific;
+    }
+    return specific;
+  }
+  if(lang==='es'){
+    return '<b>Lectura preliminar.</b> La combinación <b>'+(su?su.lbl:'usuario')+'</b> + <b>'+(sm?sm.lbl:'modelo')+'</b> no tiene una explicación específica todavía, pero define una tendencia inicial que se hará más interpretable a medida que se acumulen turnos.';
+  }
+  return '<b>Preliminary reading.</b> The combination <b>'+(su?su.lbl:'user')+'</b> + <b>'+(sm?sm.lbl:'model')+'</b> does not yet have a specific explanation, but it sets an initial tendency that becomes more interpretable as turns accumulate.';
+}
+
+function engNote(){
+  const st=selM>=0?simulateTurnOutcome().state:calcSys(false);
+  const userOpen=gv('u',1)>6&&gv('u',0)<4;
+  const userLoop=gv('u',2)>6;
+  const mAction=selM>=0?selM:lastTurnM;
+  const modelChallenges=mAction===1||mAction===2||mAction===3;
+  const engValue=selM>=0?simulateTurnOutcome().engagement:engagement;
+  if(engValue>65&&st.y<-0.1) return t('eng_addictive');
+  if(engValue>45&&userOpen&&modelChallenges) return t('eng_open_friction');
+  if(engValue>30&&userLoop&&modelChallenges) return t('eng_loop_friction');
+  if(engValue>55) return t('eng_hi');
+  return t('eng_lo');
+}
+
+function drawCompass(previewMode){
+  const cv=document.getElementById('cv');
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=76;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0d1220';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(0,229,255,0.06)';ctx.lineWidth=.5;
+  [R/3,R*2/3,R].forEach(r=>{ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke()});
+  ctx.beginPath();ctx.moveTo(cx-R-6,cy);ctx.lineTo(cx+R+6,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy-R-6);ctx.lineTo(cx,cy+R+6);ctx.stroke();
+  ctx.fillStyle='rgba(168,255,62,.04)';ctx.beginPath();ctx.arc(cx,cy,R,Math.PI,0);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,77,109,.04)';ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI);ctx.closePath();ctx.fill();
+  ctx.font='6px "Space Mono",monospace';ctx.textAlign='center';
+  ctx.fillStyle='rgba(168,255,62,.45)';ctx.fillText('↑',cx,cy-R-4);
+  ctx.fillStyle='rgba(255,77,109,.45)';ctx.fillText('↓',cx,cy+R+11);
+  if(hist.length>1){
+    for(let i=1;i<hist.length;i++){
+      const a=hist[i-1],b=hist[i],p=i/hist.length;
+      ctx.globalAlpha=.1+p*.7;
+      ctx.strokeStyle=b.y>.1?'rgba(168,255,62,.9)':b.y<-.1?'rgba(255,77,109,.9)':'rgba(74,90,122,.9)';
+      ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(cx+a.x*R,cy-a.y*R);ctx.lineTo(cx+b.x*R,cy-b.y*R);ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  }
+  const real=calcSys(false);
+  const rpx=cx+real.x*R,rpy=cy-real.y*R;
+  ctx.globalAlpha=.35;
+  ctx.strokeStyle='rgba(192,132,252,.8)';ctx.lineWidth=1;
+  const uVY=(gv('u',1)-gv('u',0))/10*R*.35;
+  ctx.beginPath();ctx.moveTo(rpx,rpy);ctx.lineTo(rpx,rpy-uVY);ctx.stroke();
+  ctx.strokeStyle='rgba(0,229,255,.8)';
+  const mVY=(gv('m',2)-gv('m',0))/10*R*.3;
+  ctx.beginPath();ctx.moveTo(rpx,rpy);ctx.lineTo(rpx+mVY*.3,rpy-mVY);ctx.stroke();
+  ctx.globalAlpha=1;
+  if(previewMode&&selM>=0){
+    const prev=simulateTurnOutcome().state;
+    const pvx=cx+prev.x*R,pvy=cy-prev.y*R;
+    ctx.setLineDash([3,3]);
+    ctx.strokeStyle='rgba(0,229,255,.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(rpx,rpy);ctx.lineTo(pvx,pvy);ctx.stroke();
+    ctx.setLineDash([]);
+    const gc=prev.y>.15?'rgba(168,255,62,.5)':prev.y<-.15?'rgba(255,77,109,.5)':'rgba(0,229,255,.4)';
+    ctx.strokeStyle=gc;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(pvx,pvy,6,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(13,18,32,.6)';ctx.beginPath();ctx.arc(pvx,pvy,6,0,Math.PI*2);ctx.fill();
+  }
+  if(real.loop){
+    ctx.strokeStyle='rgba(255,77,109,.25)';ctx.lineWidth=.8;
+    for(let a=0;a<Math.PI*2;a+=Math.PI/3){
+      ctx.beginPath();ctx.moveTo(rpx+Math.cos(a)*9,rpy+Math.sin(a)*9);
+      ctx.lineTo(rpx+Math.cos(a)*13,rpy+Math.sin(a)*13);ctx.stroke();
+    }
+  }
+  const dc=real.y>.15?'#a8ff3e':real.y<-.15?'#ff4d6d':real.loop?'#ffb800':'#00e5ff';
+  ctx.fillStyle=dc;ctx.beginPath();ctx.arc(rpx,rpy,7,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#0d1220';ctx.beginPath();ctx.arc(rpx,rpy,3,0,Math.PI*2);ctx.fill();
+}
+
+function updateUI(){
+  const real=calcSys(false);
+  const isPrev=selM>=0;
+  const outcome=isPrev?simulateTurnOutcome():null;
+  const display=isPrev?outcome.state:real;
+  const sp=document.getElementById('spill');
+  if(isPrev){sp.textContent=t('dpre')+' '+t(display.sk);sp.className='state-pill sp-pre';}
+  else{sp.textContent=t(real.sk);sp.className='state-pill '+real.sc;}
+  const pct=clamp(isPrev?outcome.engagement:engagement,0,100);
+  document.getElementById('eng-fill').style.width=pct+'%';
+  document.getElementById('eng-val').textContent=Math.round(pct);
+  document.getElementById('eng-note').innerHTML=engNote();
+  const thU=isPrev?2+Math.floor(outcome.u[0]/3):thresholdU();
+  const thM=isPrev?2+Math.floor(outcome.m[0]/4):thresholdM();
+  const prU=isPrev?outcome.pressureU:pressureU;
+  const prM=isPrev?outcome.pressureM:pressureM;
+  document.getElementById('pr-u-fill').style.width=Math.min(100,Math.max(...prU.map(Math.abs))/thU*100)+'%';
+  document.getElementById('pr-m-fill').style.width=Math.min(100,Math.max(...prM.map(Math.abs))/thM*100)+'%';
+  let insKey=real.baseIk;
+  if(selE>=0&&selM>=0){insKey=epistemicEffect(selE,selM).ik;}
+  const insEl=document.getElementById('insight');
+  let insHtml=TX[lang].ins[insKey]||t('def');
+  // Añadir patrón emergente si hay suficientes turnos
+  const pat=detectPattern();
+  if(pat && TX[lang].patterns && TX[lang].patterns[pat]){
+    insHtml += '<div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--brd);font-size:9px;opacity:.9">'+TX[lang].patterns[pat]+'</div>';
+  }
+  insEl.innerHTML=insHtml;
+  insEl.className='insight'+(real.y<-0.2?' warn-ins':real.y>0.2?' pos-ins':'');
+  document.getElementById('sc-ctx').innerHTML=getScCtx();
+}
+
+function upd(){
+  for(let i=0;i<4;i++){
+    document.getElementById('uv'+i).textContent=gv('u',i);
+    document.getElementById('mv'+i).textContent=gv('m',i);
+  }
+  drawCompass(selM>=0);updateUI();
+}
+
+// Devuelve etiqueta legible del escenario activo
+function scLabel(){
+  const su=TX[lang].su.find(s=>s.id===activeScU);
+  const sm=TX[lang].sm.find(s=>s.id===activeScM);
+  const ul=su?su.lbl:'—';
+  const ml=sm?sm.lbl:'—';
+  return 'usr:'+ul+' · mdl:'+ml;
+}
+
+function getStructuralPotential(){
+  const su=TX[lang].su.find(s=>s.id===activeScU);
+  const sm=TX[lang].sm.find(s=>s.id===activeScM);
+  if(!su||!sm) return null;
+  const u=su.v.slice();
+  const m=sm.v.slice();
+  const state=calcStateFromValues(u,m);
+  const agencyPct=Math.round((state.y+1)*50);
+  const engagementBase=((u[3]*0.35)+(u[1]*0.2)+(u[2]*0.15)+((10-m[1])*0.05)+(m[0]*0.15)+(m[2]*0.1))*10;
+  const engagementPct=Math.round(clamp(engagementBase,0,100));
+  const agencyLbl=state.y>0.18?t('cfg_struct_fav'):state.y<-0.12?t('cfg_struct_frag'):t('cfg_struct_mixed');
+  const engagementLbl=engagementPct>66?t('cfg_struct_high'):engagementPct<38?t('cfg_struct_low'):t('cfg_struct_mid');
+  return{agencyPct,engagementPct,agencyLbl,engagementLbl};
+}
+
+function updateStructuralPotential(){
+  const pot=getStructuralPotential();
+  const stateEl=document.getElementById('cfg-pot-state');
+  const aFill=document.getElementById('cfg-pot-agency-fill');
+  const eFill=document.getElementById('cfg-pot-eng-fill');
+  const aText=document.getElementById('cfg-pot-agency-text');
+  const aNum=document.getElementById('cfg-pot-agency-num');
+  const eText=document.getElementById('cfg-pot-eng-text');
+  const eNum=document.getElementById('cfg-pot-eng-num');
+  if(!pot){
+    stateEl.textContent=t('cfg_struct_pending');
+    aFill.style.width='0%'; eFill.style.width='0%';
+    aText.textContent='-'; aNum.textContent='-';
+    eText.textContent='-'; eNum.textContent='-';
+    return;
+  }
+  stateEl.textContent=pot.agencyLbl+' · '+pot.engagementLbl;
+  aFill.style.width=pot.agencyPct+'%';
+  eFill.style.width=pot.engagementPct+'%';
+  aText.textContent=pot.agencyLbl;
+  aNum.textContent=pot.agencyPct+'%';
+  eText.textContent=pot.engagementLbl;
+  eNum.textContent=pot.engagementPct+'%';
+}
+
+// Inserta separador en el log cuando cambia el escenario
+function maybeLogScenarioChange(){
+  const changed=(activeScU!==lastLoggedScU)||(activeScM!==lastLoggedScM);
+  if(!changed) return;
+  const isFirst=lastLoggedScU===null&&lastLoggedScM===null;
+  const prefix=isFirst?t('log_sc_init'):t('log_sc_change');
+  addLogSep(prefix+' '+scLabel());
+  lastLoggedScU=activeScU;
+  lastLoggedScM=activeScM;
+}
+
+function buildScenarioBtns(){
+  const ub=document.getElementById('sc-u-btns');
+  const mb=document.getElementById('sc-m-btns');
+  ub.innerHTML='';mb.innerHTML='';
+  TX[lang].su.forEach(sc=>{
+    const b=document.createElement('button');
+    b.className='scbtn-u'+(activeScU===sc.id?' on':'');
+    b.innerHTML=sc.lbl+'<span class="sc-sub">'+sc.sub+'</span>';
+    b.onclick=()=>{
+      activeScU=activeScU===sc.id?null:sc.id;
+      if(activeScU) sc.v.forEach((v,j)=>sv('u',j,v));
+      buildScenarioBtns();upd();
+    };
+    ub.appendChild(b);
+  });
+  TX[lang].sm.forEach(sc=>{
+    const b=document.createElement('button');
+    b.className='scbtn-m'+(activeScM===sc.id?' on':'');
+    b.innerHTML=sc.lbl+'<span class="sc-sub">'+sc.sub+'</span>';
+    b.onclick=()=>{
+      activeScM=activeScM===sc.id?null:sc.id;
+      if(activeScM) sc.v.forEach((v,j)=>sv('m',j,v));
+      buildScenarioBtns();upd();
+    };
+    mb.appendChild(b);
+  });
+  updateScBadge();
+}
+
+function likelihoodClass(score){
+  return score>=0.67?'prob-hi':score>=0.4?'prob-mid':'prob-low';
+}
+
+function likelihoodText(score){
+  return score>=0.67?t('prob_hi'):score>=0.4?t('prob_mid'):t('prob_low');
+}
+
+function scoreUserAction(i){
+  const u0=gv('u',0),u1=gv('u',1),u2=gv('u',2),u3=gv('u',3);
+  const scores=[
+    clamp(0.25+(u2/10)*0.5+(u0/10)*0.15-(u1/10)*0.2,0,1),
+    clamp(0.15+(u1/10)*0.5+((10-u0)/10)*0.2+((u3)/10)*0.1-(u2/10)*0.2,0,1),
+    clamp(0.1+(u1/10)*0.45+((10-u0)/10)*0.25+((u3)/10)*0.1-(u2/10)*0.25,0,1),
+    clamp(0.2+(u0/10)*0.35+(u2/10)*0.3-(u1/10)*0.15,0,1)
+  ];
+  return scores[i];
+}
+
+function scoreModelAction(i){
+  const m0=gv('m',0),m1=gv('m',1),m2=gv('m',2),m3=gv('m',3);
+  const scores=[
+    clamp(0.15+(m0/10)*0.55-((m1+m2)/20)*0.35,0,1),
+    clamp(0.15+(m1/10)*0.35+(m3/10)*0.35-(m0/10)*0.2,0,1),
+    clamp(0.1+(m2/10)*0.6+(m1/10)*0.1-(m0/10)*0.15,0,1),
+    clamp(0.1+(m2/10)*0.35+(m1/10)*0.25+(m3/10)*0.15-(m0/10)*0.15,0,1)
+  ];
+  return scores[i];
+}
+
+function buildFlow(){
+  const eg=document.getElementById('eact');eg.innerHTML='';
+  TX[lang].et.forEach((lbl,i)=>{
+    const b=document.createElement('button');
+    b.className='actbtn'+(selE===i?' sel-e':'');
+    b.innerHTML=lbl+'<span class="epill '+TX[lang].etcls[i]+'">'+TX[lang].etag[i]+'</span>';
+    if(phase!==0)b.disabled=true;
+    b.onclick=()=>pickE(i);
+    eg.appendChild(b);
+  });
+  const ug=document.getElementById('uact');ug.innerHTML='';
+  TX[lang].ua.forEach((lbl,i)=>{
+    const score=scoreUserAction(i);
+    const b=document.createElement('button');
+    b.className='actbtn '+likelihoodClass(score)+(selU===i?' sel-u':'');
+    b.innerHTML=lbl+'<span class="atag"><span>'+TX[lang].uat[i]+'</span><span class="probtag">'+t('prob')+': '+likelihoodText(score)+'</span></span>';
+    if(phase!==1)b.disabled=true;
+    b.onclick=()=>pickU(i);
+    ug.appendChild(b);
+  });
+  const mg=document.getElementById('mact');mg.innerHTML='';
+  TX[lang].ma.forEach((lbl,i)=>{
+    const score=scoreModelAction(i);
+    const b=document.createElement('button');
+    b.className='actbtn '+likelihoodClass(score)+(selM===i?' sel-m':'');
+    b.innerHTML=lbl+'<span class="atag"><span>'+TX[lang].mat[i]+'</span><span class="probtag">'+t('prob')+': '+likelihoodText(score)+'</span></span>';
+    if(phase!==2)b.disabled=true;
+    b.onclick=()=>pickM(i);
+    mg.appendChild(b);
+  });
+  document.getElementById('sn0').className='step-num'+(phase===0?' active':selE>=0?' done':'');
+  document.getElementById('sn1').className='step-num'+(phase===1?' active':selU>=0?' done':'');
+  document.getElementById('sn2').className='step-num'+(phase===2?' active':selM>=0?' done':'');
+  document.getElementById('adv-btn').disabled=!(selE>=0&&selU>=0&&selM>=0);
+  document.getElementById('adv-lbl').textContent=t('adv');
+}
+
+function pickE(i){if(phase!==0)return;selE=i;phase=1;buildFlow();upd();}
+
+function pickU(i){
+  if(phase!==1)return;selU=i;
+  U_PRESSURE[i].forEach((d,j)=>{pressureU[j]+=d;});
+  pendingUD=U_PRESSURE[i].slice();
+  phase=2;buildFlow();upd();
+}
+
+function pickM(i){
+  if(phase!==2)return;selM=i;
+  pendingMD=M_PRESSURE[i].slice();
+  M_PRESSURE[i].forEach((d,j)=>{pressureM[j]+=d;});
+  M_USER_PRESSURE[i].forEach((d,j)=>{pressureU[j]+=d;});
+  const ef=epistemicEffect(selE,i);
+  const u1=gv('u',1),u0=gv('u',0),u2=gv('u',2),u3=gv('u',3);
+  let engDelta=ef.e*10;
+  if(i===0){engDelta+=u2>6?12:4;}
+  else{
+    if(u1>6&&u0<4) engDelta+=10;
+    else if(u2>6) engDelta-=15;
+    else engDelta-=4;
+  }
+  if(u3<4) engDelta*=0.4;
+  pendingEngDelta=engDelta;
+  buildFlow();drawCompass(true);updateUI();
+}
+
+function advance(){
+  if(selE<0||selU<0||selM<0)return;
+  // Registrar escenario antes del primer turno o si cambió
+  maybeLogScenarioChange();
+  const outcome=simulateTurnOutcome();
+  [0,1,2,3].forEach(i=>sv('u',i,outcome.u[i]));
+  [0,1,2,3].forEach(i=>sv('m',i,outcome.m[i]));
+  pressureU=outcome.pressureU.slice();
+  pressureM=outcome.pressureM.slice();
+  engagement=outcome.engagement;
+  const st=outcome.state;
+  hist.push({x:st.x,y:st.y});
+  turn++;
+  document.getElementById('tbadge').textContent='TURN '+turn;
+  const cls=st.sk==='dp'?'pos':st.sk==='dn'?'neg':st.sk==='dw'?'warn':'neu';
+  addLog('T'+turn+' ['+TX[lang].et[selE]+'] '+TX[lang].ua[selU]+' → '+TX[lang].ma[selM],cls);
+  lastTurnE=selE;lastTurnU=selU;lastTurnM=selM;
+  selE=-1;selU=-1;selM=-1;phase=0;
+  pendingUD=[0,0,0,0];pendingMD=[0,0,0,0];pendingEngDelta=0;
+  buildFlow();drawCompass(false);updateUI();upd();
+}
+
+function addLog(msg,cls){
+  const log=document.getElementById('log');
+  const d=document.createElement('div');
+  d.className='log-e '+(cls||'');d.textContent=msg;
+  log.insertBefore(d,log.firstChild);
+}
+
+function addLogSep(msg){
+  const log=document.getElementById('log');
+  const d=document.createElement('div');
+  d.className='log-sep';d.textContent=msg;
+  log.insertBefore(d,log.firstChild);
+}
+
+function reset(){
+  turn=0;hist=[];selE=-1;selU=-1;selM=-1;phase=0;engagement=0;
+  pressureU=[0,0,0,0];pressureM=[0,0,0,0];
+  pendingUD=[0,0,0,0];pendingMD=[0,0,0,0];pendingEngDelta=0;
+  activeScU=null;activeScM=null;
+  lastTurnE=-1;lastTurnU=-1;lastTurnM=-1;
+  lastLoggedScU=null;lastLoggedScM=null;
+  document.getElementById('tbadge').textContent='TURN 0';
+  document.getElementById('log').innerHTML='';
+  [3,7,2,7].forEach((v,i)=>sv('u',i,v));
+  [5,2,1,9].forEach((v,i)=>sv('m',i,v));
+  buildScenarioBtns();buildFlow();upd();
+}
+
+function applyLang(){
+  document.getElementById('logosub').textContent=t('sub');
+  document.getElementById('ft-phase').textContent=t('ftph');
+  document.getElementById('banner-txt').textContent=t('banner');
+  document.getElementById('sc-u-hdr').textContent=t('sc_u_hdr');
+  document.getElementById('sc-m-hdr').textContent=t('sc_m_hdr');
+  document.getElementById('cfg-um-lbl').textContent=t('cfg_um');
+  document.getElementById('cfg-active-lbl').textContent=t('cfg_active');
+  document.getElementById('cfg-pot-lbl').textContent=t('cfg_struct');
+  document.getElementById('cfg-pot-agency-lbl').textContent=t('cfg_struct_agency');
+  document.getElementById('cfg-pot-eng-lbl').textContent=t('cfg_struct_eng');
+  document.getElementById('sys-lbl').textContent=t('sys');
+  document.getElementById('log-lbl').textContent=t('log');
+  document.getElementById('eng-lbl').textContent=t('eng');
+  document.getElementById('sh0').textContent=t('sh0');
+  document.getElementById('sh1').textContent=t('sh1');
+  document.getElementById('sh2').textContent=t('sh2');
+  document.getElementById('rst-btn').textContent=t('rst');
+  document.getElementById('lg-u').textContent=t('lg_u');
+  document.getElementById('lg-m').textContent=t('lg_m');
+  document.getElementById('lg-s').textContent=t('lg_s');
+  document.getElementById('pr-u-lbl').textContent=t('pr_u');
+  document.getElementById('pr-m-lbl').textContent=t('pr_m');
+  document.getElementById('axis-lbl').textContent=t('axis');
+  document.getElementById('lbtn').textContent=lang==='es'?'EN':'ES';
+  ['u0','u1','u2','u3','m0','m1','m2','m3'].forEach(k=>{
+    const n=document.getElementById(k+'n'),d=document.getElementById(k+'d');
+    if(n)n.childNodes[0].textContent=t(k+'n');
+    if(d)d.textContent=t(k+'d');
+  });
+  document.getElementById('sh-config').innerHTML='<span>'+t('sh_config')+'</span>';
+  document.getElementById('sh-sim').innerHTML='<span>'+t('sh_sim')+'</span>';
+  buildScenarioBtns();buildFlow();upd();
+}
+
+function toggleCfg(){
+  const inner=document.getElementById('cfg-inner');
+  const arrow=document.getElementById('cfg-arrow');
+  const collapsed=inner.classList.toggle('collapsed');
+  arrow.classList.toggle('open',!collapsed);
+}
+
+function updateScBadge() {
+  const badge = document.getElementById('sc-badge');
+  if (!badge) return;
+  const uSc = TX[lang].su.find(s=>s.id===activeScU);
+  const mSc = TX[lang].sm.find(s=>s.id===activeScM);
+  if (uSc && mSc) badge.textContent = uSc.lbl + ' ' + String.fromCharCode(183) + ' ' + mSc.lbl;
+  else if (uSc) badge.textContent = uSc.lbl;
+  else if (mSc) badge.textContent = mSc.lbl;
+  else badge.textContent = '-';
+  updateStructuralPotential();
+}
+
+document.getElementById('lbtn').onclick=()=>{lang=lang==='es'?'en':'es';applyLang()};
+applyLang();
+</script>
+</body>
+</html>
+
+
+
