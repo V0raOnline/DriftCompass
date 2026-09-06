@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EpistePhan · Epistemic Compass</title>
+<meta name="description" content="Simulador de agencia epistémica en interacción humano-IA: elige un perfil de usuario y uno de modelo y observa cómo evolucionan la capacidad de sostener criterio propio y el enganche de la conversación.">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -19,7 +20,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 #dc{max-width:1100px;margin:0 auto;padding:16px;position:relative;z-index:1}
 
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.logo{font-family:'Space Mono',monospace;font-size:12px;color:var(--acc);letter-spacing:.12em}
+.logo{font-family:'Space Mono',monospace;font-size:12px;color:var(--acc);letter-spacing:.12em;font-weight:400}
 .logosub{font-family:'Space Mono',monospace;font-size:8px;color:var(--mut);letter-spacing:.06em;margin-top:2px}
 .topright{display:flex;align-items:center;gap:10px}
 .turn-badge{font-family:'Space Mono',monospace;font-size:9px;color:var(--mut)}
@@ -186,7 +187,7 @@ footer a:hover{color:var(--acc)}
   <div class="logo-wrap">
     <div class="logo-svg-wrap"><svg width="45" height="45" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="cc"><circle cx="200" cy="200" r="170"/></clipPath><radialGradient id="bglo" cx="45%" cy="42%" r="55%"><stop offset="0%" stop-color="#0a1a4a"/><stop offset="100%" stop-color="#020814"/></radialGradient></defs><circle cx="200" cy="200" r="178" fill="#010610"/><circle cx="200" cy="200" r="170" fill="url(#bglo)"/><g clip-path="url(#cc)"><rect x="68" y="126" width="70" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="138" y="126" width="194" height="24" rx="3" fill="#00e040" opacity="0.85"/><rect x="68" y="166" width="100" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="168" y="166" width="164" height="24" rx="3" fill="#00e040" opacity="0.85"/><rect x="68" y="206" width="136" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="204" y="206" width="128" height="24" rx="3" fill="#00e040" opacity="0.85"/><rect x="68" y="246" width="112" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="180" y="246" width="152" height="24" rx="3" fill="#00e040" opacity="0.85"/><rect x="68" y="286" width="84" height="24" rx="3" fill="#7a1a1a" opacity="0.85"/><rect x="152" y="286" width="180" height="24" rx="3" fill="#00e040" opacity="0.85"/><circle cx="248" cy="190" r="26" fill="#ff7c00"/><circle cx="248" cy="190" r="18" fill="#ff9a30"/><circle cx="248" cy="190" r="10" fill="#ffbe6a"/></g><circle cx="200" cy="200" r="170" fill="none" stroke="#0d2060" stroke-width="1.5"/></svg></div>
     <div>
-      <div class="logo">DriftCompass</div>
+      <h1 class="logo">DriftCompass</h1>
       <div class="logosub" id="logosub">epistemic compass · interacción humano-IA</div>
     </div>
   </div>

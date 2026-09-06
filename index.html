@@ -1,12 +1,25 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
-    <meta http-equiv="refresh" content="0; url=/DriftCompass/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriftCompass — Simulador de agencia epistémica en interacción humano-IA</title>
+    <meta name="description" content="Visualiza cómo el binomio entre un perfil de usuario y uno de modelo afecta a la agencia epistémica y al enganche de una conversación. Bilingüe, sin backend y en un solo archivo HTML.">
+    <!-- Esta pagina solo redirige. El canonical manda a los buscadores a la
+         pagina real, para que indexen esa y no este trampolin. -->
+    <link rel="canonical" href="https://v0raonline.github.io/DriftCompass/DriftCompass.html">
+    <!-- Apuntaba a "/DriftCompass/", que es ESTA pagina: un bucle. Solo se
+         salvaba por el JavaScript de abajo, asi que sin JS -o para un
+         rastreador que siga el refresh- no llegaba a ninguna parte. -->
+    <meta http-equiv="refresh" content="0; url=DriftCompass.html">
     <script>
-      window.location.href = "/DriftCompass/DriftCompass.html";
+      window.location.replace("DriftCompass.html");
     </script>
   </head>
   <body>
-    <p>Redirecting to <a href="/driftcompass/">DriftCompass</a>...</p>
+    <h1>DriftCompass</h1>
+    <!-- El enlace de rescate iba a "/driftcompass/" en minusculas y GitHub
+         Pages distingue mayusculas: era un 404. -->
+    <p>Redirigiendo a <a href="DriftCompass.html">DriftCompass</a>…</p>
   </body>
 </html>
